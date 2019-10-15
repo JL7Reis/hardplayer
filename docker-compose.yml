@@ -1,0 +1,24 @@
+version: "2.0"
+services:
+  springboot:
+    build: .
+    container_name: hardplayer-springboot
+    ports:
+      - 8080:8090
+    depends_on:
+      - mongo
+    networks:
+      - app-tier
+  mongo:
+    image: mongo
+    container_name: hardplayer-mongodb
+    ports:
+      - 27017:27018
+    environment:
+      MONGODB_APPLICATION_DATABASE: hardplayer
+    networks:
+      - app-tier
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+networks:
+  app-tier:
+    driver: bridge

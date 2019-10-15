@@ -1,0 +1,19 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/hardplayer
+
+server:
+  port: 8080
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /swagger2.json
+
+info:
+  application:
+    name: Spring Boot - RestTemplate CRUD Rest Client Example
+    description: Spring Boot - RestTemplate CRUD Rest Client Example
+    version: 0.0.1
