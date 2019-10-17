@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class TokenAuthenticationService {
+public class AuthenticationService {
 	
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -33,37 +33,30 @@ public class TokenAuthenticationService {
 	private ReturnObject ro;
 	
 	private static final long EXPIRATION_TIME = 60 * 60 * 1000;
-	static final String SECRET = "pj0ug8sXjx826202OFRrwC2PqaM6EWQrpHgMzyhmq60GkDqZQzaH7rSyoirlNOf4eXL0LxPZQ2K1iROwobXCAA";
-	static final String TOKEN_PREFIX = "Bearer";
-	
-	public void addAuthentication(HttpServletResponse response, String username) {
-		response.addHeader(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + " " + generateJwt(username));
-	}
+	private static final String SECRET = "pj0ug8sXjx826202OFRrwC2PqaM6EWQrpHgMzyhmq60GkDqZQzaH7rSyoirlNOf4eXL0LxPZQ2K1iROwobXCAA";
+	private static final String TOKEN_PREFIX = "Bearer";
 	
 	public ReturnObject setLogin(LoginPayload LoginPayload) {
 		
 		try {
-			loginSpringSecurity(LoginPayload);
-			
-			ro.setResult(generateJwt(LoginPayload.getUsername()));
-			ro.setStatus(HttpStatus.OK.value());
+			authSpringSecurity(LoginPayload);
+			ro.setReturnObjectOk(generateJwt(LoginPayload.getUsername()));
 		} catch (Exception e) {
-			ro.setMessage(e.getMessage());
-			ro.setStatus(HttpStatus.BAD_REQUEST.value());
 			log.error(e.getMessage());
+			ro.setReturnObjectError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
 		}
 		return ro;
+	}
+	
+	public void addAuthentication(HttpServletResponse response, String username) {
+		response.addHeader(HttpHeaders.AUTHORIZATION, TOKEN_PREFIX + " " + generateJwt(username));
 	}
 	
 	public static Authentication getAuthentication(HttpServletRequest request) {
 		String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 		
 		if (token != null) {
-			String user = Jwts.parser()
-					.setSigningKey(SECRET)
-					.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-					.getBody()
-					.getSubject();
+			String user = parseJwt(token);
 			
 			if (user != null) {
 				return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
@@ -73,7 +66,7 @@ public class TokenAuthenticationService {
 	}
 	
 	@SuppressWarnings("deprecation")
-	private String generateJwt(String username) {
+	public String generateJwt(String username) {
 		return Jwts.builder()
 				.setSubject(username)
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
@@ -81,7 +74,16 @@ public class TokenAuthenticationService {
 				.compact();
 	}
 	
-	private void loginSpringSecurity(LoginPayload LoginPayload) {
+	private static String parseJwt(String token) {
+		log.debug(">> " + token);
+		return Jwts.parser()
+				.setSigningKey(SECRET)
+				.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+				.getBody()
+				.getSubject();
+	}
+	
+	private void authSpringSecurity(LoginPayload LoginPayload) {
 		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(LoginPayload.getUsername(), LoginPayload.getPassword());
 		Authentication auth = authenticationManager.authenticate(authReq);
 		SecurityContextHolder.getContext().setAuthentication(auth);

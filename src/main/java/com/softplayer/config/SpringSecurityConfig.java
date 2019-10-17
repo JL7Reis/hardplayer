@@ -1,14 +1,14 @@
 package com.softplayer.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -16,8 +16,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.google.common.collect.ImmutableList;
 import com.softplayer.jwt.JWTAuthenticationFilter;
-import com.softplayer.jwt.JWTLoginFilter;
 import com.softplayer.util.CustomAccessDeniedHandler;
+import com.softplayer.util.CustomAuthenticationEntryPoint;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,23 +32,25 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 				.cors()
 				.and()
 			    .authorizeRequests()
-			    .antMatchers(HttpMethod.POST, "/token/generate-token").permitAll()
+			    .antMatchers("/login**").permitAll()
+			    .antMatchers("/logout").permitAll()
 			    .anyRequest().authenticated()
-		    .and()
-			    .httpBasic()
 			.and()
 				.logout()
 				.logoutUrl("/logout")
-				.logoutSuccessUrl("/logout")
 			    .invalidateHttpSession(true)
 			    .clearAuthentication(true)
-			    .deleteCookies()
+			    .deleteCookies("JSESSIONID")
 				.permitAll()
 			.and()
-				.exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
+				.exceptionHandling()
+				.accessDeniedHandler(new CustomAccessDeniedHandler())
+				.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 			.and()
-				.addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
-		                UsernamePasswordAuthenticationFilter.class)
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and()
+//				.addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
+//		                UsernamePasswordAuthenticationFilter.class)
 				
 				.addFilterBefore(new JWTAuthenticationFilter(),
 		                UsernamePasswordAuthenticationFilter.class);
@@ -60,31 +62,42 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) {
 	    try {
-			web.ignoring().antMatchers(HttpMethod.GET, "/source");
+			web.ignoring().antMatchers("/v2/api-docs",
+					                    "/configuration/ui",
+					                    "/swagger-resources/**",
+					                    "/configuration/security",
+					                    "/swagger-ui.html",
+					                    "/swagger2.json",
+					                    "/webjars/**");
 	    } catch(Exception e) {
 			log.error(e.getMessage(), e);
 		}
 	}
 	
-	@Autowired
+	@Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		try {
 			auth.inMemoryAuthentication()
-				.withUser("softplayer").password("{noop}softplayer").roles("USER")
+				.withUser("softplayer").password(passwordEncoder().encode("softplayer")).roles("USER")
 				.and()
-				.withUser("hardplayer").password("{noop}hardplayer").roles("ADMIN");
+				.withUser("hardplayer").password(passwordEncoder().encode("hardplayer")).roles("ADMIN");
 		} catch(Exception e) {
 			log.error(e.getMessage(), e);
 		}
     }
 	
-	@Bean
+    @Bean
     protected AuthenticationManager authenticationManager() throws Exception {
     	return super.authenticationManager();
     }
 	
+    @Bean
+	protected BCryptPasswordEncoder passwordEncoder(){ 
+        return new BCryptPasswordEncoder(); 
+    }
+	
 	@Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+	protected CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(ImmutableList.of("*"));
         configuration.setAllowedMethods(ImmutableList.of("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH"));

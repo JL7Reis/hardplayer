@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Bean;
 import com.softplayer.domain.ReturnObject;
 
 @SpringBootApplication
-public class SoftplayerApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SoftplayerApplication.class, args);
+		new SpringApplication(Application.class).run(args);
 	}
 	
 	@Bean

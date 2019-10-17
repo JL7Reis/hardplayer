@@ -45,29 +45,25 @@ public class UserController {
 	private ReturnObject addUser(@RequestBody User user) {
 		boolean hasError = false;
 		if (!Validator.isValidEmail(user.getEmail())) {
-			ro.setMessage("Email invalid!");
-			ro.setStatus(HttpStatus.BAD_REQUEST.value());
+			ro.setReturnObjectError(HttpStatus.BAD_REQUEST.value(), "Email invalid!");
 			hasError = true;
 		}
 		if (!Validator.isValidCpf(user.getCpf())) {
-			ro.setMessage("CPF invalid!");
-			ro.setStatus(HttpStatus.BAD_REQUEST.value());
+			ro.setReturnObjectError(HttpStatus.BAD_REQUEST.value(), "CPF invalid!");
 			hasError = true;
 		}
 		
 		try {
 			if (!hasError) {
-				ro.setResult(userService.addUser(user));
-				ro.setStatus(HttpStatus.OK.value());
+				ro.setReturnObjectOk(userService.addUser(user));
 			}
 		} catch (DuplicateKeyException e) {
 			log.error(e.getMessage());
-			ro.setStatus(HttpStatus.CONFLICT.value());
-			ro.setMessage("User with CPF "+ user.getCpf() +" already registered!");
+			ro.setReturnObjectError(HttpStatus.CONFLICT.value(), 
+					"User with CPF "+ user.getCpf() +" already registered!");
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ro.setMessage(e.getMessage());
-			ro.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			ro.setReturnObjectError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
 		}
 		return ro;
 	}
@@ -81,10 +77,9 @@ public class UserController {
 	@GetMapping("/getUser/{cpf}")
 	private ReturnObject getUser(@PathVariable(value="cpf", required=true) String cpf) {
 		if (Validator.isValidCpf(cpf)) {
-			ro.setResult(userService.getUser(cpf));
+			ro.setReturnObjectOk(userService.getUser(cpf));
 		} else {
-			ro.setMessage("CPF invalid!");
-			ro.setStatus(HttpStatus.BAD_REQUEST.value());
+			ro.setReturnObjectError(HttpStatus.BAD_REQUEST.value(), "CPF invalid!");
 		}
 		return ro;
 	}
@@ -99,11 +94,10 @@ public class UserController {
 	@GetMapping("/getUsers")
 	private ReturnObject getUsers() {
 		try {
-			ro.setResult(userService.getUsers());
+			ro.setReturnObjectOk(userService.getUsers());
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ro.setMessage(e.getMessage());
-			ro.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			ro.setReturnObjectError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
 		}
 		return ro;
 	}
@@ -116,12 +110,10 @@ public class UserController {
 	@PutMapping("/updateUser")
 	private ReturnObject updateUser(@RequestBody User user) {
 		try {
-			ro.setResult(userService.updateUser(user));
-			ro.setStatus(HttpStatus.OK.value());
+			ro.setReturnObjectOk(userService.updateUser(user));
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			ro.setMessage(e.getMessage());
-			ro.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			ro.setReturnObjectError(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
 		}
 		return ro;
 	}

@@ -12,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
-import com.softplayer.service.TokenAuthenticationService;
+import com.softplayer.service.AuthenticationService;
 
 public class JWTAuthenticationFilter extends GenericFilterBean {
 
@@ -20,7 +20,7 @@ public class JWTAuthenticationFilter extends GenericFilterBean {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
 			throws IOException, ServletException {
 		
-		Authentication authentication = TokenAuthenticationService.getAuthentication((HttpServletRequest) request);
+		Authentication authentication = AuthenticationService.getAuthentication((HttpServletRequest) request);
 		
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		filterChain.doFilter(request, response);

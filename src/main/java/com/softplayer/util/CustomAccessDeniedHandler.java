@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 		if (auth != null) {
 			log.warn("User: " + auth.getName() + " try access URL: " + request.getRequestURI());
 		}
-		response.sendRedirect(request.getContextPath() + "/403");
+		response.setStatus(HttpStatus.FORBIDDEN.value());
 	}
 }

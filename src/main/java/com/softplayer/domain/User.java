@@ -15,6 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import lombok.Data;
+
+@Data
 @Document("user")
 public class User {
 	
@@ -46,64 +49,4 @@ public class User {
 	private LocalDateTime registration;
 	private LocalDateTime update;
 	
-	public ObjectId get_id() {
-		return _id;
-	}
-	public void set_id(ObjectId _id) {
-		this._id = _id;
-	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	public String getCpf() {
-		return cpf;
-	}
-	public void setCpf(String cpf) {
-		this.cpf = cpf;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
-	}
-	public LocalDate getBithdate() {
-		return bithdate;
-	}
-	public void setBithdate(LocalDate bithdate) {
-		this.bithdate = bithdate;
-	}
-	public String getGenre() {
-		return genre;
-	}
-	public void setGenre(String genre) {
-		this.genre = genre;
-	}
-	public String getBirthplace() {
-		return birthplace;
-	}
-	public void setBirthplace(String birthplace) {
-		this.birthplace = birthplace;
-	}
-	public String getNationality() {
-		return nationality;
-	}
-	public void setNationality(String nationality) {
-		this.nationality = nationality;
-	}
-	public LocalDateTime getRegistration() {
-		return registration;
-	}
-	public void setRegistration(LocalDateTime registration) {
-		this.registration = registration;
-	}
-	public LocalDateTime getUpdate() {
-		return update;
-	}
-	public void setUpdate(LocalDateTime update) {
-		this.update = update;
-	}
 }
