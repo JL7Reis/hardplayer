@@ -14,15 +14,22 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import com.softplayer.service.AuthenticationService;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class JWTAuthenticationFilter extends GenericFilterBean {
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
 			throws IOException, ServletException {
 		
-		Authentication authentication = AuthenticationService.getAuthentication((HttpServletRequest) request);
-		
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		try {
+			Authentication authentication = AuthenticationService.getAuthentication((HttpServletRequest) request);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+		} catch (ExpiredJwtException e) {
+			log.error(e.getMessage());
+		}
 		filterChain.doFilter(request, response);
 	}
 }

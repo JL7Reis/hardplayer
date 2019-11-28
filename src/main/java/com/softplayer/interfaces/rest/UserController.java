@@ -101,6 +101,7 @@ public class UserController {
 		}
 		return ro;
 	}
+	
 	@ApiOperation(value = "Altera um usuário existente na base de dados.", 
 			notes = "Altera um usuário existente na base de dados.", 
 			authorizations = {@Authorization("baererAuth")})

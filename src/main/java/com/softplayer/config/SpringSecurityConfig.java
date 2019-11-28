@@ -15,7 +15,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.google.common.collect.ImmutableList;
-import com.softplayer.jwt.JWTAuthenticationFilter;
+import com.softplayer.jwt.JWTAuthenticationFilter2;
 import com.softplayer.util.CustomAccessDeniedHandler;
 import com.softplayer.util.CustomAuthenticationEntryPoint;
 
@@ -52,8 +52,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //				.addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
 //		                UsernamePasswordAuthenticationFilter.class)
 				
-				.addFilterBefore(new JWTAuthenticationFilter(),
+				.addFilterBefore(new JWTAuthenticationFilter2(),
 		                UsernamePasswordAuthenticationFilter.class);
+//				.addFilterBefore(new JWTAuthenticationFilter(),
+//		                UsernamePasswordAuthenticationFilter.class);
         } catch(Exception e) {
 			log.error(e.getMessage(), e);
 		}

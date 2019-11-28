@@ -8,7 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,9 +20,6 @@ import com.softplayer.domain.LoginPayload;
 import com.softplayer.service.AuthenticationService;
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
-	
-	@Autowired
-	private AuthenticationService authenticationService;
 	
 	public JWTLoginFilter(String url, AuthenticationManager authManager) {
 		super(new AntPathRequestMatcher(url));
@@ -48,6 +44,6 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			FilterChain filterChain, Authentication auth) throws IOException, ServletException {
 		
-		authenticationService.addAuthentication(response, auth.getName());
+		AuthenticationService.addAuthentication(response, auth.getName());
 	}
 }
